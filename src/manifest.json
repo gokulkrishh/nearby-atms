@@ -1,17 +1,17 @@
 {
   "name": "Nearby ATM's",
   "short_name": "Nearby ATM's",
-  "start_url": "./index.html?utm=homescreen",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f44336",
-  "theme_color": "#E53935",
+  "background_color": "#fff",
+  "theme_color": "#57717d",
   "icons": [{
     "src": "./assets/icons/android-chrome-192x192.png",
     "type": "image/png",
     "sizes": "192x192"
   },
-	{
+  {
     "src": "./assets/icons/android-chrome-512x512.png",
     "type": "image/png",
     "sizes": "512x512"
