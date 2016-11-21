@@ -39,12 +39,17 @@ export default class Home extends Component {
 
     		var marker = new google.maps.Marker({
           position: myLatLng,
-          label: 'You',
           animation: google.maps.Animation.DROP,
           map: map
         });
 
-        var request = {
+        var infowindow = new google.maps.InfoWindow({
+        	content: 'You'
+      	});
+
+      	infowindow.open(map, marker);
+
+        let request = {
 			    location: myLatLng,
 			    radius: 250,
 			    types: ['atm']
@@ -54,19 +59,25 @@ export default class Home extends Component {
 
   			service.nearbySearch(request, (results, status) => {
   				if (status == google.maps.places.PlacesServiceStatus.OK) {
-				    for (var i = 0; i < results.length; i++) {
+				    for (let i = 0; i < results.length; i++) {
 				      createMarker(results[i]);
 				    }
 				  }
   			});
 
   			function createMarker(place) {
-  				console.log(place)
-				  var marker = new google.maps.Marker({
+  				console.log(place);
+				  let marker = new google.maps.Marker({
 				    map: map,
 				    position: place.geometry.location,
-				    animation: google.maps.Animation.BOUNCE
+				    animation: google.maps.Animation.DROP
 				  });
+
+				  let infowindow = new google.maps.InfoWindow({
+          	content: place.name
+        	});
+
+        	infowindow.open(map, marker);
   			}
 			});
 		});
@@ -82,7 +93,7 @@ export default class Home extends Component {
 		return (
 			<div class={style.home}>
 				<div id="map" class={style.map}>
-					<p class="loading">Loading map...</p>
+					<p class={style.map.loading}>Loading map...</p>
 				</div>
 
 				<div class={style.actions}>
