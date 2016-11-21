@@ -83,6 +83,10 @@ export default class Home extends Component {
 
       	infowindow.open(map, marker);
 
+      	marker.addListener('click', () => {
+    			infowindow.open(map, marker);
+			  });
+
         let request = {
 			    location: myLatLng,
 			    radius: 250,
@@ -117,7 +121,7 @@ export default class Home extends Component {
 	        infowindow.open(map, marker);
 					infoWindows.push(infowindow);
 
-					var url = `https://crossorigin.me/https://cashnocash.com/api/atms?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
+					var url = `https://cash-or-not-proxy-mczimgiusy.now.sh?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
 	      	fetch(url)
 	      		.then((response) => { return response.json() })
 	      		.then((results) => {
@@ -126,7 +130,10 @@ export default class Home extends Component {
 	      			infoWindows[i].setContent(html);
 	      		});
 
-  			}
+      		marker.addListener('click', () => {
+      			infowindow.open(map, marker);
+				  });
+				}
 			});
 		}
 	}
