@@ -8,19 +8,29 @@ export default class Home extends Component {
 		super(props);
 		this.getLocationAndDistance = this.getLocationAndDistance.bind(this);
 		this.geoLocationError = this.geoLocationError.bind(this);
+		this.showToastMsg = this.showToastMsg.bind(this);
 		this.state = {
 			msg: '',
 			showToast: false
 		};
 	}
 
-	hideToast() {
+	hideToastMsg() {
 		setTimeout(() => {
 			this.setState({
 				msg: '',
 				showToast: false
 			});
 		}, 4000);
+	}
+
+	showToastMsg(msg) {
+		this.setState({
+			msg: msg,
+			showToast: true
+		});
+
+		this.hideToastMsg();
 	}
 
 	componentDidMount(event) {
@@ -30,21 +40,12 @@ export default class Home extends Component {
 		this.getLocationAndDistance();
 
 		window.addEventListener('offline', () => {
-			this.setState({
-				msg: 'Offline',
-				showToast: true
-			});
-
-			this.hideToast();
+			this.showToastMsg('Offline');
 		});
 
 		window.addEventListener('online', () => {
-			this.setState({
-				msg: 'You are Online now',
-				showToast: true
-			});
-
-			this.hideToast();
+			this.getLocationAndDistance();
+			this.showToastMsg('You are Online now');
 		})
 	}
 
@@ -98,6 +99,7 @@ export default class Home extends Component {
 				  }
   			});
 
+  			var infoWindows = [];
   			function createMarker(place, i) {
   				let marker = new google.maps.Marker({
 				    map: map,
@@ -109,10 +111,22 @@ export default class Home extends Component {
 	        var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
 
 					let infowindow = new google.maps.InfoWindow({
-	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div>` + `<div><a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
+	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> ${status}</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
 	        });
 
 	        infowindow.open(map, marker);
+					infoWindows.push(infowindow);
+
+					var url = `http://crossorigin.me/https://cashnocash.com/api/atms?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
+  				var status = 'Loading...';
+	      	fetch(url)
+	      		.then((response) => { return response.json() })
+	      		.then((results) => {
+	      			status = results[i].working_status;
+	      			var html = `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> ${status}</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`;
+	      			infoWindows[i].setContent(html);
+	      		});
+
   			}
 			});
 		}
@@ -120,12 +134,7 @@ export default class Home extends Component {
 
 	geoLocationError(error) {
 		if (error.code == error.PERMISSION_DENIED) {
-			this.setState({
-				showToast: true,
-				msg: error.message
-			});
-
-			this.hideToast();
+			this.showToastMsg(error.message);
     }
 	}
 

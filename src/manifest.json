@@ -1,6 +1,6 @@
 {
   "name": "Nearby ATM's",
-  "short_name": "Nearby ATM's",
+  "short_name": "Nearby ATMs",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
