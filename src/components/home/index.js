@@ -111,14 +111,13 @@ export default class Home extends Component {
 	        var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
 
 					let infowindow = new google.maps.InfoWindow({
-	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> ${status}</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
+	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> Loading...</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
 	        });
 
 	        infowindow.open(map, marker);
 					infoWindows.push(infowindow);
 
-					var url = `http://crossorigin.me/https://cashnocash.com/api/atms?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
-  				var status = 'Loading...';
+					var url = `https://crossorigin.me/https://cashnocash.com/api/atms?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
 	      	fetch(url)
 	      		.then((response) => { return response.json() })
 	      		.then((results) => {
