@@ -6,18 +6,17 @@ import style from './style';
 export default class Home extends Component {
 	constructor(props) {
 		super(props);
-		this.getLocation = this.getLocation.bind(this);
+		this.getLocationAndDistance = this.getLocationAndDistance.bind(this);
 	}
 
 	componentDidMount(event) {
 		GoogleMapsLoader.KEY = config.mapAPIKey;
 		GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
 		GoogleMapsLoader.REGION = 'IN';
-		console.log(GoogleMapsLoader)
-		this.getLocation();
+		this.getLocationAndDistance();
 	}
 
-	getLocation() {
+	getLocationAndDistance() {
 		navigator.geolocation.getCurrentPosition((position) => { 
 			const myLatLng = {
 				lat: position.coords.latitude,
@@ -60,51 +59,60 @@ export default class Home extends Component {
   			service.nearbySearch(request, (results, status) => {
   				if (status == google.maps.places.PlacesServiceStatus.OK) {
 				    for (let i = 0; i < results.length; i++) {
-				      createMarker(results[i]);
+				      createMarker(results[i], i);
 				    }
 				  }
   			});
 
-  			function createMarker(place) {
-  				console.log(place);
-				  let marker = new google.maps.Marker({
+  			function createMarker(place, i) {
+  				let marker = new google.maps.Marker({
 				    map: map,
 				    position: place.geometry.location,
 				    animation: google.maps.Animation.DROP
 				  });
 
-				  let infowindow = new google.maps.InfoWindow({
-          	content: place.name
-        	});
+				  var latLngA = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+	        var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
 
-        	infowindow.open(map, marker);
+					let infowindow = new google.maps.InfoWindow({
+	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div>` + `<div><a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
+	        });
+
+	        infowindow.open(map, marker);
   			}
+
+  			// if (GoogleMapsLoader.isLoaded()) {
+  			// 	// this.setState({
+  			// 	// 	isMapLoaded: true
+  			// 	// });
+  			// }
 			});
 		});
 	}
 
 	componentWillUnmount() {
-		GoogleMapsLoader.release(() => {
-			console.log("Google MAPS API is released.");
-		});
+		GoogleMapsLoader.release();
 	}
 
 	render() {
+		const {isMapLoaded} = this.state;
 		return (
 			<div class={style.home}>
 				<div id="map" class={style.map}>
-					<p class={style.map.loading}>Loading map...</p>
+					<p class={style.loading}></p>	
 				</div>
-
-				<div class={style.actions}>
-					<button onClick={this.getLocation}>
-						<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-					    <path d="M0 0h24v24H0z" fill="none"/>
-					    <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
-						</svg>
-					</button>
-					<p>Locate ATM Nearby</p>
-				</div>
+				{
+					/* isMapLoaded && (<div class={style.actions}>
+						<button onClick={this.getLocation}>
+							<svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+						    <path d="M0 0h24v24H0z" fill="none"/>
+						    <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+							</svg>
+						</button>
+						<p>Locate Nearby ATM's</p>
+					</div>)
+					*/
+				}
 			</div>
 		);
 	}

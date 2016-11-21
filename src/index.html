@@ -3,12 +3,36 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Nearby ATM's</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-		<meta name="mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="description" content="Find nearby ATM's with cash or no cash status">
+		<meta name="msapplication-TileColor" content="#E53935">
+    <meta name="msapplication-TileImage" content="./assets/icons/mstile-150x150.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nearby ATM's">
+    <meta name="application-name" content="Nearby ATM's">
 		<meta name="format-detection" content="telephone=no">
 		<meta name="theme-color" content="#E53935">
+		<link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+		<link rel="icon" type="image/png" href="./assets/icons/favicon-32x32.png" sizes="32x32">
+		<link rel="icon" type="image/png" href="/assets/icons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="./manifest.json">
 		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	</head>
-	<body></body>
+	<body>
+		
+		<script type="text/javascript">
+	  //If serviceWorker supports, then register it.
+	  if ("serviceWorker" in navigator) {
+	    navigator.serviceWorker.register('./sw.js', { scope: "./" }) //setting scope of sw
+	    .then(function (registration) {
+	      console.info('Service worker is registered!');
+	    })
+	    .catch(function (error) {
+	      console.error('Service worker failed ', error);
+	    });
+	  }
+  </script>
+	</body>
 </html>
