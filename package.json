@@ -68,7 +68,7 @@
     "webpack-dev-server": "^1.15.0"
   },
   "dependencies": {
-    "googlemaps": "^1.11.1",
+    "google-maps": "^3.2.1",
     "preact": "^6.0.0",
     "preact-compat": "^3.0.0",
     "preact-router": "^2.0.0",
