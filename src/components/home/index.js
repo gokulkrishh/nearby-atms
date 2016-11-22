@@ -61,7 +61,7 @@ export default class Home extends Component {
 			GoogleMapsLoader.load((google) => {
 				const options = {
 					center: myLatLng,
-					zoom: 17,
+					zoom: 16,
 					fullscreenControl: true, 
 					backgroundColor: '#fafafa',
 					zoomControl: false,
