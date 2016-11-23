@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 import GoogleMapsLoader from 'google-maps';
+import Push from '../../lib/push.js';
 import config from '../../config.json';
 import style from './style';
 
@@ -85,10 +86,26 @@ export default class Home extends Component {
 
 			  var latLngA = new google.maps.LatLng(myLatLng.lat, myLatLng.lng);
         var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
-
-        function hasCash(event) {
-					console.log(event)
-				}
+        
+        setTimeout((distance, place) => {
+        	if (distance < 100) {
+        		Push.create("Does this ATM has money now?", {
+					    body: place.name,
+					    icon: './assets/icons/apple-touch-icon.png',
+					    timeOut: 5000,
+					    requireInteraction: false,
+					    onClick: function (event) {
+					    	console.log(event)
+				        window.focus();
+				        this.close();
+					    },
+					    actions: [
+                { "action": "yes", "title": "Cash"},
+                { "action": "no", "title": "Cash"}
+              ]
+						});
+        	}
+				}, 10000, distance, place);
 
 				let infowindow = new google.maps.InfoWindow({
           content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div id="${place.id}"><b>Cash:</b> <span>Yes</span> or <span>No</span></div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
@@ -108,7 +125,7 @@ export default class Home extends Component {
 			  		var userAns = event.target.textContent;
 			  		console.log(userAns)
 			  	}
-			  })
+			  });
 			}
 		});
 	}
