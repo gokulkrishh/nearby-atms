@@ -6,8 +6,8 @@ var filesToCache = [
 	'./style.css',
   './bundle.js',
   './manifest.json',
-  '/assets/icons/favicon-16x16.png',
-  '/assets/icons/favicon-32x32.png',
+  './assets/icons/favicon-16x16.png',
+  './assets/icons/favicon-32x32.png',
 	'https://fonts.googleapis.com/css?family=Roboto'
 ];
 

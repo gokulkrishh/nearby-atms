@@ -6,142 +6,111 @@ import style from './style';
 export default class Home extends Component {
 	constructor(props) {
 		super(props);
-		this.getLocationAndDistance = this.getLocationAndDistance.bind(this);
-		this.geoLocationError = this.geoLocationError.bind(this);
-		this.showToastMsg = this.showToastMsg.bind(this);
-		this.state = {
-			msg: '',
-			showToast: false
-		};
+		this.getNearbyAtms = ::this.getNearbyAtms;
 	}
 
-	hideToastMsg() {
-		setTimeout(() => {
-			this.setState({
-				msg: '',
-				showToast: false
-			});
-		}, 4000);
-	}
-
-	showToastMsg(msg) {
-		this.setState({
-			msg: msg,
-			showToast: true
-		});
-
-		this.hideToastMsg();
-	}
-
-	componentDidMount(event) {
+	componentDidMount() {
 		GoogleMapsLoader.KEY = config.mapAPIKey;
 		GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
-		GoogleMapsLoader.REGION = 'IN';
-		this.getLocationAndDistance();
 
-		window.addEventListener('offline', () => {
-			this.showToastMsg('Offline');
+    navigator.geolocation.getCurrentPosition((event) => {
+			let location = {
+				lat: event.coords.latitude,
+				lng: event.coords.longitude
+			};
+			this.getNearbyAtms(location);
+		}, (error) => {
+			if (error.code == error.PERMISSION_DENIED) {
+				alert(error.message);
+    	}
 		});
-
-		window.addEventListener('online', () => {
-			this.getLocationAndDistance();
-			this.showToastMsg('You are Online now');
-		})
 	}
 
-	getLocationAndDistance() {
-		navigator.geolocation.getCurrentPosition(onSuccess, this.geoLocationError);
+	getNearbyAtms(myLatLng) {
+		GoogleMapsLoader.load((google) => {
+			const options = {
+				center: myLatLng,
+				fullscreenControl: true, 
+				backgroundColor: '#fafafa',
+				zoomControl: true,
+				signInControl: true,
+				disableDefaultUI: true
+			};
+  		
+  		var map = new google.maps.Map(document.getElementById('map'), options);
 
-		function onSuccess(position) { 
-			const myLatLng = {
-					lat: position.coords.latitude,
-					lng: position.coords.longitude
-				};
+  		var marker = new google.maps.Marker({
+        position: myLatLng,
+        animation: google.maps.Animation.DROP,
+        map: map
+      });
 
-			GoogleMapsLoader.load((google) => {
-				const options = {
-					center: myLatLng,
-					zoom: 16,
-					fullscreenControl: true, 
-					backgroundColor: '#fafafa',
-					zoomControl: false,
-					mapTypeControl: false,
-					signInControl: true
-				};
-    		
-    		var map = new google.maps.Map(document.getElementById('map'), options);
+      var infowindow = new google.maps.InfoWindow({
+      	content: 'You'
+    	});
 
-    		var marker = new google.maps.Marker({
-          position: myLatLng,
-          animation: google.maps.Animation.DROP,
-          map: map
-        });
+    	infowindow.open(map, marker);
 
-        var infowindow = new google.maps.InfoWindow({
-        	content: 'You'
-      	});
+    	marker.addListener('click', () => {
+  			infowindow.open(map, marker);
+  			map.setZoom(19);
+	      map.panTo(marker.getPosition());
+		  });
 
-      	infowindow.open(map, marker);
+		  map.setZoom(17);
+    	map.setCenter(myLatLng);
+    	
+      let request = {
+		    location: myLatLng,
+		    radius: 250,
+		    types: ['atm']
+		  };
 
-      	marker.addListener('click', () => {
-    			infowindow.open(map, marker);
+      var service = new google.maps.places.PlacesService(map);
+
+			service.nearbySearch(request, (results, status) => {
+				if (status == google.maps.places.PlacesServiceStatus.OK) {
+			    for (let result of results) {
+			      createMarker(result);
+			    }
+			  }
+			});
+
+			function createMarker(place) {
+				let marker = new google.maps.Marker({
+			    map: map,
+			    position: place.geometry.location,
+			    animation: google.maps.Animation.DROP
 			  });
 
-        let request = {
-			    location: myLatLng,
-			    radius: 250,
-			    types: ['atm']
-			  };
+			  var latLngA = new google.maps.LatLng(myLatLng.lat, myLatLng.lng);
+        var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
 
-        var service = new google.maps.places.PlacesService(map);
-
-  			service.nearbySearch(request, (results, status) => {
-  				if (status == google.maps.places.PlacesServiceStatus.OK) {
-				    for (let i = 0; i < results.length; i++) {
-				      createMarker(results[i], i);
-				    }
-				  }
-  			});
-
-  			var infoWindows = [];
-  			function createMarker(place, i) {
-  				let marker = new google.maps.Marker({
-				    map: map,
-				    position: place.geometry.location,
-				    animation: google.maps.Animation.DROP
-				  });
-
-				  var latLngA = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-	        var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
-
-					let infowindow = new google.maps.InfoWindow({
-	          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> Loading...</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
-	        });
-
-	        infowindow.open(map, marker);
-					infoWindows.push(infowindow);
-
-					var url = `https://cash-or-not-proxy-mczimgiusy.now.sh?lat=${place.geometry.location.lat()}&lon=${place.geometry.location.lng()}`;
-	      	fetch(url)
-	      		.then((response) => { return response.json() })
-	      		.then((results) => {
-	      			status = results[i].working_status;
-	      			var html = `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div><b>Status:</b> ${status}</div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`;
-	      			infoWindows[i].setContent(html);
-	      		});
-
-      		marker.addListener('click', () => {
-      			infowindow.open(map, marker);
-				  });
+        function hasCash(event) {
+					console.log(event)
 				}
-			});
-		}
-	}
 
-	geoLocationError(error) {
-		if (error.code == error.PERMISSION_DENIED) {
-			this.showToastMsg(error.message);
-    }
+				let infowindow = new google.maps.InfoWindow({
+          content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div id="${place.id}"><b>Cash:</b> <span>Yes</span> or <span>No</span></div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
+        });
+
+        infowindow.open(map, marker);
+
+    		marker.addListener('click', () => {
+    			console.log("came")
+    			infowindow.open(map, marker);
+    			map.setZoom(19);
+		      map.panTo(marker.getPosition());
+			  });
+
+			  document.getElementById(place.id).addEventListener('click', (event) => {
+			  	if (event.target.textContent === 'Yes' || event.target.textContent === 'No') {
+			  		var userAns = event.target.textContent;
+			  		console.log(userAns)
+			  	}
+			  })
+			}
+		});
 	}
 
 	componentWillUnmount() {
@@ -149,14 +118,11 @@ export default class Home extends Component {
 	}
 
 	render() {
-		const {msg, showToast} = this.state;
+		const {msg} = this.state;
 		return (
 			<div class={style.home}>
 				<div id="map" class={style.map}>
 					<p class={style.loading}></p>	
-				</div>
-				<div class={style.snackbar} style={showToast ? {bottom: 0} : ''}>
-  				<p>{msg}</p>
 				</div>
 			</div>
 		);
