@@ -16,6 +16,10 @@ export default class Toast extends Component {
   	window.addEventListener('offline', () => {
       this.showToastMsg('You are Offline');
   	});
+
+  	window.addEventListener('online', () => {
+      if (this.toastMsg) this.toastMsg.remove();
+  	});
   }
 
 	showToastMsg(msg) {
