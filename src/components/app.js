@@ -1,7 +1,7 @@
 import { h, Component } from 'preact';
 import { Router } from 'preact-router';
 
-import Header from './header';
+import Toast from './toast';
 import Home from './home';
 
 
@@ -20,6 +20,7 @@ export default class App extends Component {
 				<Router onChange={this.handleRoute}>
 					<Home path="/" />
 				</Router>
+        <Toast />
 			</div>
 		);
 	}

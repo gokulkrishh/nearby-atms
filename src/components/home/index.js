@@ -43,18 +43,16 @@ export default class Home extends Component {
   		var marker = new google.maps.Marker({
         position: myLatLng,
         animation: google.maps.Animation.DROP,
-        map: map
+        map: map,
+        icon: './assets/icons/current-location.png'
       });
 
       var infowindow = new google.maps.InfoWindow({
       	content: 'You'
     	});
 
-    	infowindow.open(map, marker);
-
     	marker.addListener('click', () => {
   			infowindow.open(map, marker);
-  			map.setZoom(19);
 	      map.panTo(marker.getPosition());
 		  });
 
@@ -88,24 +86,20 @@ export default class Home extends Component {
         var distance = google.maps.geometry.spherical.computeDistanceBetween(latLngA, place.geometry.location);
         
         setTimeout((distance, place) => {
-        	if (distance < 100) {
+        	if (distance < 150) {
         		Push.create("Does this ATM has money now?", {
 					    body: place.name,
 					    icon: './assets/icons/apple-touch-icon.png',
 					    timeOut: 5000,
 					    requireInteraction: false,
 					    onClick: function (event) {
-					    	console.log(event)
+					    	console.log(event);
 				        window.focus();
 				        this.close();
-					    },
-					    actions: [
-                { "action": "yes", "title": "Cash"},
-                { "action": "no", "title": "Cash"}
-              ]
+					    }
 						});
         	}
-				}, 10000, distance, place);
+				}, 5000, distance, place);
 
 				let infowindow = new google.maps.InfoWindow({
           content: `<div><b>Bank:</b> ${place.name} - <b>${parseInt(distance)} M</b></div><div id="${place.id}"><b>Cash:</b> <span>Yes</span> or <span>No</span></div>` + `<div><b>Direction: </b> <a href="https://maps.google.com/?saddr=${latLngA}&daddr=${place.geometry.location}" target="_blank">Go here</a></div>`
@@ -114,9 +108,7 @@ export default class Home extends Component {
         infowindow.open(map, marker);
 
     		marker.addListener('click', () => {
-    			console.log("came")
     			infowindow.open(map, marker);
-    			map.setZoom(19);
 		      map.panTo(marker.getPosition());
 			  });
 
