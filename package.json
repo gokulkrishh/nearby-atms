@@ -70,6 +70,7 @@
   },
   "dependencies": {
     "google-maps": "^3.2.1",
+    "moment": "^2.17.1",
     "preact": "^6.0.0",
     "preact-compat": "^3.0.0",
     "preact-router": "^2.0.0",
