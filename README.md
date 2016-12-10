@@ -1,6 +1,6 @@
 # [Nearby ATM's](https://atms.surge.sh)
 
-*A PreactJS based progressive web application to find near by atm's using google maps.*
+*Find near by atm's with last active status powered by PreactJS*
 
 ## [Live](https://atms.surge.sh)
 
